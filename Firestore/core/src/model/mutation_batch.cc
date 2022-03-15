@@ -101,12 +101,16 @@ MutationBatch::MutationByDocumentKeyMap MutationBatch::ApplyToLocalDocumentSet(D
     // and we should remove this cast.
     auto& document = const_cast<MutableDocument&>(it->second.get());
     FieldMask mutated_fields = ApplyToLocalDocument(document);
-    Mutation overlay = Mutation::CalculateOverlayMutation(document, mutated_fields);
-    overlays[key] = std::move(overlay);
+    absl::optional<Mutation> overlay = Mutation::CalculateOverlayMutation(document, mutated_fields);
+    if (overlay.has_value()) {
+      overlays.emplace(key, std::move(overlay).value());
+    }
     if (!document.is_valid_document()) {
       document.ConvertToNoDocument(SnapshotVersion::None());
     }
   }
+
+  return overlays;
 }
 
 DocumentKeySet MutationBatch::keys() const {
