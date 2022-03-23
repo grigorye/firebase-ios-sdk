@@ -111,7 +111,7 @@
   XCTAssertNil(weakHeartbeatLogger);
 }
 
-- (void)testCachedInstancesAreRemovedUponDeinitAndCanBeRetainedStrongly {
+- (void)testCachedInstancesAreRemovedUponDeallocButCanBeRetainedStrongly {
   // Given
   FIRHeartbeatLogger *heartbeatLogger1 = [FIRHeartbeatLogger loggerForAppID:@"appID"];
   FIRHeartbeatLogger *heartbeatLogger2 = [FIRHeartbeatLogger loggerForAppID:@"appID"];
