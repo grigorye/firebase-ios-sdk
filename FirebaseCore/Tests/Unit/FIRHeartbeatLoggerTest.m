@@ -54,6 +54,110 @@
   [FIRHeartbeatLoggingTestUtils removeUnderlyingHeartbeatStorageContainersAndReturnError:nil];
 }
 
+#pragma mark - Instance Management
+
+- (void)testGettingInstance_WithSameAppID_ReturnsSameInstance {
+  // Given
+  FIRHeartbeatLogger *heartbeatLogger1 = [FIRHeartbeatLogger loggerForAppID:@"appID"];
+  // When
+  FIRHeartbeatLogger *heartbeatLogger2 = [FIRHeartbeatLogger loggerForAppID:@"appID"];
+  // Then
+  NSLog(@"");
+  XCTAssertNotNil(heartbeatLogger1);
+  XCTAssertNotNil(heartbeatLogger2);
+  XCTAssert(heartbeatLogger1 == heartbeatLogger2, "Instances should reference the same object.");
+
+  __auto_type __weak weakHeartbeatLogger1 = heartbeatLogger1;
+  __auto_type __weak weakHeartbeatLogger2 = heartbeatLogger2;
+  [self addTeardownBlock:^{
+    XCTAssertNil(weakHeartbeatLogger1);
+    XCTAssertNil(weakHeartbeatLogger2);
+  }];
+}
+
+- (void)testGettingInstance_WithDifferentAppID_ReturnsDifferentInstances {
+  // Given
+  FIRHeartbeatLogger *heartbeatLogger1 = [FIRHeartbeatLogger loggerForAppID:@"appID_1"];
+  // When
+  FIRHeartbeatLogger *heartbeatLogger2 = [FIRHeartbeatLogger loggerForAppID:@"appID_2"];
+  // Then
+  XCTAssertNotNil(heartbeatLogger1);
+  XCTAssertNotNil(heartbeatLogger2);
+  XCTAssert(heartbeatLogger1 != heartbeatLogger2, "Instances should reference the same object.");
+
+  __auto_type __weak weakHeartbeatLogger1 = heartbeatLogger1;
+  __auto_type __weak weakHeartbeatLogger2 = heartbeatLogger2;
+  [self addTeardownBlock:^{
+    XCTAssertNil(weakHeartbeatLogger1);
+    XCTAssertNil(weakHeartbeatLogger2);
+  }];
+}
+
+- (void)testCachedInstancesCannotBeRetainedWeakly {
+  // Given
+  FIRHeartbeatLogger *strongHeartbeatLogger = [FIRHeartbeatLogger loggerForAppID:@"appID"];
+  FIRHeartbeatLogger *__weak weakHeartbeatLogger = nil;
+  @autoreleasepool {
+    weakHeartbeatLogger = [FIRHeartbeatLogger loggerForAppID:@"appID"];
+  }
+  XCTAssertNotNil(strongHeartbeatLogger);
+  XCTAssertNotNil(weakHeartbeatLogger);
+  XCTAssert(strongHeartbeatLogger == weakHeartbeatLogger,
+            "Instances should reference the same object.");
+  // When
+  strongHeartbeatLogger = nil;
+  // Then
+  XCTAssertNil(strongHeartbeatLogger);
+  XCTAssertNil(weakHeartbeatLogger);
+}
+
+- (void)testCachedInstancesAreRemovedUponDeinitAndCanBeRetainedStrongly {
+  // Given
+  FIRHeartbeatLogger *heartbeatLogger1 = [FIRHeartbeatLogger loggerForAppID:@"appID"];
+  FIRHeartbeatLogger *heartbeatLogger2 = [FIRHeartbeatLogger loggerForAppID:@"appID"];
+  FIRHeartbeatLogger *heartbeatLogger3 = [FIRHeartbeatLogger loggerForAppID:@"appID_1"];
+  XCTAssertNotNil(heartbeatLogger1);
+  XCTAssertNotNil(heartbeatLogger2);
+  XCTAssert(heartbeatLogger1 == heartbeatLogger2, "Instances should reference the same object.");
+  // When
+  heartbeatLogger1 = nil;
+  XCTAssertNil(heartbeatLogger1);
+  XCTAssertNotNil(heartbeatLogger2);
+  // Then
+  heartbeatLogger2 = nil;
+  XCTAssertNil(heartbeatLogger2);
+
+  [self addTeardownBlock:^{
+    FIRHeartbeatLogger *heartbeatLogger4 = [FIRHeartbeatLogger loggerForAppID:@"appID_1"];
+    XCTAssertNotNil(heartbeatLogger3);
+    XCTAssertNotNil(heartbeatLogger4);
+    XCTAssert(heartbeatLogger3 == heartbeatLogger4, "Instances should reference the same object.");
+  }];
+}
+
+- (void)testGetInstanceStressTest {
+  // Given
+  NSMutableArray *instances = [NSMutableArray array];
+
+  // When
+  NSMutableArray<XCTestExpectation *> *expectations = [NSMutableArray array];
+  for (NSInteger i = 0; i < 1000; i++) {
+    XCTestExpectation *expectation =
+        [self expectationWithDescription:[NSString stringWithFormat:@"count: %@", @(i)]];
+    [expectations addObject:expectation];
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [instances addObject:[FIRHeartbeatLogger loggerForAppID:@"appID"]];
+      [expectation fulfill];
+    });
+  }
+  [self waitForExpectations:expectations timeout:3.0];
+
+  // Then
+  XCTAssertEqual([[NSSet setWithArray:instances] count], 1);
+}
+
+#pragma mark - Logging/Flushing
+
 - (void)testDoNotLogMoreThanOnceToday {
   // Given
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
@@ -96,7 +200,7 @@
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
   // When
   [heartbeatLogger log];
-  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCode];
+  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
   // Then
   XCTAssertEqual(heartbeatInfoCode, FIRHeartbeatInfoCodeGlobal);
 }
@@ -105,7 +209,7 @@
   // Given
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
   // When
-  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCode];
+  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
   // Then
   XCTAssertEqual(heartbeatInfoCode, FIRHeartbeatInfoCodeNone);
 }
@@ -139,7 +243,7 @@
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
   [heartbeatLogger log];
   // When
-  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCode];
+  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
   FIRHeartbeatsPayload *heartbeatsPayload = [heartbeatLogger flushHeartbeatsIntoPayload];
   // Then
   XCTAssertEqual(heartbeatInfoCode, FIRHeartbeatInfoCodeGlobal);
@@ -153,7 +257,7 @@
   [heartbeatLogger log];
   // When
   FIRHeartbeatsPayload *heartbeatsPayload = [heartbeatLogger flushHeartbeatsIntoPayload];
-  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCode];
+  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
   // Then
   [self assertEncodedPayloadHeader:FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload)
               isEqualToPayloadJSON:@{

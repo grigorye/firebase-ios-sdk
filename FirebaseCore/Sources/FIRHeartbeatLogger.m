@@ -14,11 +14,30 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
-
 @import FirebaseCoreInternal;
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
+#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
+
+// MARK: - FIRWeakContainer
+
+/// A class used to weakly box reference types. This is used below to weakly store
+/// `FIRHeartbeatLogger` instances in a dictionary.
+@interface FIRWeakContainer<Object> : NSObject
+@property(readonly, weak) Object object;
+@end
+
+@implementation FIRWeakContainer
+
++ (instancetype)containerWithObject:(id)obj {
+  FIRWeakContainer *container = [[FIRWeakContainer alloc] init];
+  container->_object = obj;
+  return container;
+}
+
+@end
+
+// MARK: - FIRHeartbeatLogger
 
 NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *heartbeatsPayload) {
   if ([heartbeatsPayload isEmpty]) {
@@ -29,7 +48,8 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
 }
 
 @interface FIRHeartbeatLogger ()
-@property(nonatomic, readonly) FIRHeartbeatController *heartbeatController;
+@property(readonly) NSString *appID;
+@property(readonly) FIRHeartbeatController *heartbeatController;
 @property(copy, readonly) NSString * (^userAgentProvider)(void);
 @end
 
@@ -43,7 +63,8 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
             userAgentProvider:(NSString * (^)(void))userAgentProvider {
   self = [super init];
   if (self) {
-    _heartbeatController = [[FIRHeartbeatController alloc] initWithId:[appID copy]];
+    _appID = [appID copy];
+    _heartbeatController = [[FIRHeartbeatController alloc] initWithId:_appID];
     _userAgentProvider = [userAgentProvider copy];
   }
   return self;
@@ -55,6 +76,41 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
   };
 }
 
+// MARK: - Instance Management
+
++ (NSMutableDictionary<NSString *, FIRWeakContainer<FIRHeartbeatLogger *> *> *)cachedInstances {
+  static NSMutableDictionary *cachedInstances;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    cachedInstances = [NSMutableDictionary dictionary];
+  });
+  return cachedInstances;
+}
+
++ (FIRHeartbeatLogger *)getInstanceForID:(NSString *)ID {
+  @synchronized(self) {
+    if (self.cachedInstances[ID] && self.cachedInstances[ID].object) {
+      // There is an existing instance to get.
+      return [self.cachedInstances[ID] object];
+    } else {
+      FIRHeartbeatLogger *newInstance = [[FIRHeartbeatLogger alloc] initWithAppID:ID];
+      self.cachedInstances[ID] = [FIRWeakContainer containerWithObject:newInstance];
+      return newInstance;
+    }
+  }
+}
+
+- (void)dealloc {
+  // Removes the instance if it was cached.
+  [[self.class cachedInstances] removeObjectForKey:_appID];
+}
+
++ (FIRHeartbeatLogger *)loggerForAppID:(NSString *)appID {
+  return [self getInstanceForID:appID];
+}
+
+// MARK: - Flushing/Logging
+
 - (void)log {
   NSString *userAgent = _userAgentProvider();
   [_heartbeatController log:userAgent];
@@ -65,8 +121,7 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
   return payload;
 }
 
-// TODO: Rename to `heartbeatCodeForToday` in future PR's.
-- (FIRHeartbeatInfoCode)heartbeatCode {
+- (FIRHeartbeatInfoCode)heartbeatCodeForToday {
   FIRHeartbeatsPayload *todaysHeartbeatPayload = [_heartbeatController flushHeartbeatFromToday];
 
   if ([todaysHeartbeatPayload isEmpty]) {
