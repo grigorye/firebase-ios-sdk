@@ -16,11 +16,13 @@
 #import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker+Private.h"
 
 #import <Foundation/Foundation.h>
+#if 0
 #import <UIKit/UIKit.h>
-
+#endif
 #import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
 
 NSString *const kFPRPrefixForScreenTraceName = @"_st_";
+#if 0
 NSString *const kFPRFrozenFrameCounterName = @"_fr_fzn";
 NSString *const kFPRSlowFrameCounterName = @"_fr_slo";
 NSString *const kFPRTotalFramesCounterName = @"_fr_tot";
@@ -401,3 +403,4 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
 }
 
 @end
+#endif

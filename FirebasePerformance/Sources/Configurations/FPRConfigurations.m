@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if 0
 #import <UIKit/UIKit.h>
+#endif
 
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
@@ -83,10 +85,12 @@ static dispatch_once_t gSharedInstanceToken;
 }
 
 - (void)registerForNotifications {
+#if 0
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(update)
                                                name:UIApplicationDidBecomeActiveNotification
                                              object:nil];
+#endif
 }
 
 /** Searches the main bundle and the bundle from bundleForClass: info dictionaries for the key and

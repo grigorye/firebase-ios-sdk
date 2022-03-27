@@ -123,9 +123,11 @@
     // Create the Logger for the Perf SDK events to be sent to Google Data Transport.
     self.gdtLogger = [[FPRGDTLogger alloc] initWithLogSource:logSource];
 
+#if 0
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
     // Create telephony network information object ahead of time to avoid runtime delays.
     FPRNetworkInfo();
+#endif
 #endif
 
     // Update the configuration flags.

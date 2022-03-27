@@ -91,16 +91,21 @@ static firebase_perf_v1_NetworkConnectionInfo_NetworkType FPRNetworkConnectionIn
 
   // Parse the network flags to set the network type.
   if (reachabilityFlags & kSCNetworkReachabilityFlagsReachable) {
+#if 0
     if (reachabilityFlags & kSCNetworkReachabilityFlagsIsWWAN) {
       networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_MOBILE;
     } else {
       networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_WIFI;
     }
+#else
+    networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_WIFI;
+#endif
   }
 
   return networkType;
 }
 
+#if 0
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 /** Get the current cellular network connection type in
  * firebase_perf_v1_NetworkConnectionInfo_MobileSubtype format.
@@ -132,6 +137,7 @@ static firebase_perf_v1_NetworkConnectionInfo_MobileSubtype FPRCellularNetworkTy
   NSNumber *cellularNetworkType = cellularNetworkToMobileSubtype[networkString];
   return cellularNetworkType.intValue;
 }
+#endif
 #endif
 
 #pragma mark - Nanopb decode and encode helper methods
@@ -216,6 +222,7 @@ firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage() {
   iosAppInfo.network_connection_info.network_type = FPRNetworkConnectionInfoNetworkType();
   iosAppInfo.has_network_connection_info = true;
   iosAppInfo.network_connection_info.has_network_type = true;
+#if 0
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
   CTTelephonyNetworkInfo *networkInfo = FPRNetworkInfo();
   CTCarrier *provider = networkInfo.subscriberCellularProvider;
@@ -228,6 +235,7 @@ firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage() {
     iosAppInfo.network_connection_info.mobile_subtype = FPRCellularNetworkType();
     iosAppInfo.network_connection_info.has_mobile_subtype = true;
   }
+#endif
 #endif
   appInfoMessage.ios_app_info = iosAppInfo;
   appInfoMessage.has_ios_app_info = true;
@@ -432,6 +440,7 @@ firebase_perf_v1_ApplicationProcessState FPRApplicationProcessState(FPRTraceStat
   return processState;
 }
 
+#if 0
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 CTTelephonyNetworkInfo *FPRNetworkInfo() {
   static CTTelephonyNetworkInfo *networkInfo;
@@ -441,6 +450,7 @@ CTTelephonyNetworkInfo *FPRNetworkInfo() {
   });
   return networkInfo;
 }
+#endif
 #endif
 
 /** Reorders the list of sessions to make sure the first session is verbose if at least one session

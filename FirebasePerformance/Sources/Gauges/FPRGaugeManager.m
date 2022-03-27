@@ -21,7 +21,9 @@
 #import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector.h"
 #import "FirebasePerformance/Sources/Gauges/Memory/FPRMemoryGaugeCollector.h"
 
+#if 0
 #import <UIKit/UIKit.h>
+#endif
 
 // Number of gauge data information after which that gets flushed to Google Data Transport.
 NSInteger const kGaugeDataBatchSize = 25;
@@ -67,6 +69,7 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
 }
 
 - (void)dealloc {
+#if 0
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationDidBecomeActiveNotification
                                                 object:[UIApplication sharedApplication]];
@@ -74,12 +77,14 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationWillResignActiveNotification
                                                 object:[UIApplication sharedApplication]];
+#endif
 }
 
 /**
  * Starts tracking the application state changes.
  */
 - (void)startAppActivityTracking {
+#if 0
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(appStateChanged:)
                                                name:UIApplicationDidBecomeActiveNotification
@@ -89,6 +94,7 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
                                            selector:@selector(appStateChanged:)
                                                name:UIApplicationWillResignActiveNotification
                                              object:[UIApplication sharedApplication]];
+#endif
 }
 
 - (void)appStateChanged:(NSNotification *)notification {

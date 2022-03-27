@@ -22,7 +22,9 @@
  * Traces also include "Counters". Counters are used to track information which is cumulative in
  * nature (e.g., Bytes downloaded). Counters are scoped to an FIRTrace object.
  */
+#if 0
 NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
+#endif
 NS_SWIFT_NAME(Trace)
 @interface FIRTrace : NSObject <FIRPerformanceAttributable>
 

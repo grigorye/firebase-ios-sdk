@@ -25,7 +25,9 @@
  * To stop the periodic sync, call `[FIRInstallations deleteWithCompletion:]` and
  * either disable this SDK or set FIRPerformance.dataCollectionEnabled to NO.
  */
+#if 0
 NS_EXTENSION_UNAVAILABLE("FirebasePerformance does not support app extensions at this time.")
+#endif
 NS_SWIFT_NAME(Performance)
 @interface FIRPerformance : NSObject
 

@@ -16,6 +16,8 @@
 #if TARGET_OS_WATCH
 #warning "Firebase Performance does not support watchOS"
 #endif
+#if 0
 #if TARGET_OS_OSX
 #warning "Firebase Performance does not support macOS"
+#endif
 #endif

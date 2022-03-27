@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if 0
 #import <UIKit/UIKit.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker+Private.h"
@@ -111,3 +112,4 @@ void InstrumentViewDidDisappear(FPRUIViewControllerInstrument *instrument,
 }
 
 @end
+#endif

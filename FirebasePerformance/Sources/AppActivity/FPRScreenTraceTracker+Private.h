@@ -62,8 +62,10 @@ FOUNDATION_EXTERN CFTimeInterval const kFPRFrozenFrameThreshold;
 /** Serial queue on which all operations that need to be thread safe in this class take place. */
 @property(nonatomic) dispatch_queue_t screenTraceTrackerSerialQueue;
 
+#if 0
 /** The display link that provides us with the frame rate data. */
 @property(nonatomic) CADisplayLink *displayLink;
+#endif
 
 /** Dispatch group which allows us to make this class testable. Instead of waiting an arbitrary
  *  amount of time for an asynchronous task to finish before asserting its behavior, we can wait

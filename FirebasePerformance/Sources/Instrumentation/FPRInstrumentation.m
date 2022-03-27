@@ -73,9 +73,11 @@ NSString *const kFPRInstrumentationGroupUIKitKey = @"uikit";
     [self registerInstrument:[[FPRNSURLConnectionInstrument alloc] init] group:group];
   }
 
+#if 0
   if ([group isEqualToString:kFPRInstrumentationGroupUIKitKey]) {
     [self registerInstrument:[[FPRUIViewControllerInstrument alloc] init] group:group];
   }
+#endif
 
   return _instrumentGroups[group].count;
 }

@@ -880,7 +880,7 @@ let package = Package(
     .target(
       name: "FirebasePerformanceTarget",
       dependencies: [.target(name: "FirebasePerformance",
-                             condition: .when(platforms: [.iOS, .tvOS]))],
+                             condition: .when(platforms: [.macOS, .iOS, .tvOS]))],
       path: "SwiftPM-PlatformExclude/FirebasePerformanceWrap"
     ),
     .target(

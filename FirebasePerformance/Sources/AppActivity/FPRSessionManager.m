@@ -19,7 +19,9 @@
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
 
+#if 0
 #import <UIKit/UIKit.h>
+#endif
 
 NSString *const kFPRSessionIdUpdatedNotification = @"kFPRSessionIdUpdatedNotification";
 NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
@@ -65,11 +67,13 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
 
 - (void)startTrackingAppStateChanges {
   if (!self.trackingApplicationStateChanges) {
+#if 0
     // Starts tracking the application life cycle events during which the session Ids change.
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(updateSessionId:)
                                                  name:UIApplicationWillEnterForegroundNotification
                                                object:[UIApplication sharedApplication]];
+#endif
     self.trackingApplicationStateChanges = YES;
   }
 }
@@ -128,9 +132,11 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
 
 - (void)dealloc {
   if (self.trackingApplicationStateChanges) {
+#if 0
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIApplicationDidBecomeActiveNotification
                                                   object:[UIApplication sharedApplication]];
+#endif
   }
 }
 

@@ -153,9 +153,11 @@ extern void FPRSetGaugeMetric(firebase_perf_v1_PerfMetric* _Nonnull perfMetric,
 extern void FPRSetApplicationProcessState(firebase_perf_v1_PerfMetric* _Nonnull perfMetric,
                                           firebase_perf_v1_ApplicationProcessState state);
 
+#if 0
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 /** Obtain a CTTelephonyNetworkInfo object to determine device network attributes.
  *  @return CTTelephonyNetworkInfo object.
  */
 extern CTTelephonyNetworkInfo* _Nullable FPRNetworkInfo(void);
+#endif
 #endif

@@ -15,7 +15,9 @@
 #import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
 
 #import <Foundation/Foundation.h>
+#if 0
 #import <UIKit/UIKit.h>
+#endif
 
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
@@ -92,6 +94,7 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
 
   gAppStartCPUGaugeData = fprCollectCPUMetric();
   gAppStartMemoryGaugeData = fprCollectMemoryMetric();
+#if 0
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(windowDidBecomeVisible:)
                                                name:UIWindowDidBecomeVisibleNotification
@@ -101,8 +104,10 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
                                            selector:@selector(applicationDidFinishLaunching:)
                                                name:UIApplicationDidFinishLaunchingNotification
                                              object:nil];
+#endif
 }
 
+#if 0
 + (void)windowDidBecomeVisible:(NSNotification *)notification {
   FPRAppActivityTracker *activityTracker = [self sharedInstance];
   [activityTracker startAppActivityTracking];
@@ -118,6 +123,7 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
                                                   name:UIApplicationDidFinishLaunchingNotification
                                                 object:nil];
 }
+#endif
 
 + (instancetype)sharedInstance {
   static FPRAppActivityTracker *instance;
@@ -140,6 +146,7 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
 }
 
 - (void)startAppActivityTracking {
+#if 0
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(appDidBecomeActiveNotification:)
                                                name:UIApplicationDidBecomeActiveNotification
@@ -149,6 +156,7 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
                                            selector:@selector(appWillResignActiveNotification:)
                                                name:UIApplicationWillResignActiveNotification
                                              object:[UIApplication sharedApplication]];
+#endif
 }
 
 - (FIRTrace *)activeTrace {
@@ -317,6 +325,7 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
 }
 
 - (void)dealloc {
+#if 0
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationDidBecomeActiveNotification
                                                 object:[UIApplication sharedApplication]];
@@ -324,6 +333,7 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationWillResignActiveNotification
                                                 object:[UIApplication sharedApplication]];
+#endif
 }
 
 @end

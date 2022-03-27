@@ -15,7 +15,9 @@
 #import "FirebasePerformance/Sources/AppActivity/FPRTraceBackgroundActivityTracker.h"
 
 #import <Foundation/Foundation.h>
+#if 0
 #import <UIKit/UIKit.h>
+#endif
 
 #import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
 
@@ -36,6 +38,7 @@
       _traceBackgroundState = FPRTraceStateForegroundOnly;
     }
 
+#if 0
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationDidBecomeActive:)
                                                  name:UIApplicationDidBecomeActiveNotification
@@ -45,6 +48,7 @@
                                              selector:@selector(applicationDidEnterBackground:)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:[UIApplication sharedApplication]];
+#endif
   }
   return self;
 }

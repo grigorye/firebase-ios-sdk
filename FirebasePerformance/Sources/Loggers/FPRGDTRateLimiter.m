@@ -16,7 +16,9 @@
 #import "FirebasePerformance/Sources/Loggers/FPRGDTRateLimiter+Private.h"
 
 #import <Foundation/Foundation.h>
+#if 0
 #import <UIKit/UIKit.h>
+#endif
 
 #import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
 #import "FirebasePerformance/Sources/Common/FPRPerfDate.h"
